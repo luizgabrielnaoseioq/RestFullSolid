@@ -26,4 +26,10 @@ export async function userRoutes(app: FastifyInstance) {
 
     return reply.status(201).send();
   });
+
+  app.get("/", async () => {
+    const users = await prisma.user.findMany();
+
+    return { users };
+  });
 }
