@@ -1,9 +1,6 @@
 import fastify from "fastify";
-import { userRoutes } from "./routes/user";
+import { appRoutes } from "./http/controllers/routes";
 
+export const app = fastify();
 
-export const app = fastify()
-
-app.register(userRoutes, {
-  prefix: 'users',
-})
+app.register(appRoutes);
