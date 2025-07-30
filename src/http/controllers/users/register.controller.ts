@@ -3,6 +3,7 @@ import z from "zod";
 import { FastifyRequest, FastifyReply } from "fastify";
 import { hash } from "bcryptjs";
 import { PrismaClientValidationError } from "generated/prisma/runtime/library";
+import { registerUseCase } from "@/use-cases/users/register";
 
 export async function registerUser(
   request: FastifyRequest,
@@ -16,27 +17,15 @@ export async function registerUser(
 
   const { name, email, password } = createUserBodySchema.parse(request.body);
 
-  // Criptografa a senha do usuario utilizando o metodo hash do bcrypt.
-  const password_hash = await hash(password, 6);
-
-  // Ferifica se ja esxiste um usuario com o mesmo email.
-  const userWithSameEmail = await prisma.user.findUnique({
-    where: {
-      email,
-    }
-  })
-
-  if(userWithSameEmail) {
-    reply.status(409).send()
-  }
-
-  await prisma.user.create({
-    data: {
+  try {
+    await registerUseCase ({
       name,
       email,
-      password_hash,
-    },
-  });
+      password,
+    })
+  } catch (error) {
+    reply.code(409).send()
+  }
 
   return reply.status(201).send();
 }
